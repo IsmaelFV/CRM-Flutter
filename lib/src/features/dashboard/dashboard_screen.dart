@@ -6,6 +6,7 @@ import '../../shared/providers/auth_provider.dart';
 import '../ventas/ventas_screen.dart';
 import '../gastos/gastos_screen.dart';
 import '../productos/productos_screen.dart';
+import '../dueno/dueno_screen.dart';
 import '../admin/admin_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       const VentasScreen(),
       const GastosScreen(),
       const ProductosScreen(),
+      if (authProvider.isDueno) DuenoScreen(),
       if (authProvider.isSuperadmin) const AdminScreen(),
     ];
 
@@ -121,6 +123,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(Icons.inventory),
             label: 'Productos',
           ),
+          if (authProvider.isDueno)
+            const NavigationDestination(
+              icon: Icon(Icons.store),
+              label: 'Dueño',
+            ),
           if (authProvider.isSuperadmin)
             const NavigationDestination(
               icon: Icon(Icons.admin_panel_settings),

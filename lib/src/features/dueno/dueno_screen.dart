@@ -27,11 +27,16 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Future<void> _cargarEmpleados() async {
     setState(() => _isLoading = true);
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.currentUser?.id;
+    
     final todosUsuarios = await _userService.getAllUsers();
     if (mounted) {
       setState(() {
-        // Filtrar solo empleados
-        _empleados = todosUsuarios.where((u) => u.esEmpleado).toList();
+        // Filtrar solo empleados de este dueño
+        _empleados = todosUsuarios.where((u) => 
+          u.esEmpleado && u.duenoId == duenoId
+        ).toList();
         _isLoading = false;
       });
     }
@@ -104,15 +109,12 @@ class _DuenoScreenState extends State<DuenoScreen> {
         hasta: DateTime.now(),
       );
       if (mounted) {
-        if (file != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Ventas exportadas: ${file.path}')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay ventas para exportar'), backgroundColor: Colors.orange),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Ventas exportadas correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -130,15 +132,12 @@ class _DuenoScreenState extends State<DuenoScreen> {
         hasta: DateTime.now(),
       );
       if (mounted) {
-        if (file != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gastos exportados: ${file.path}')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay gastos para exportar'), backgroundColor: Colors.orange),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Gastos exportados correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -153,15 +152,12 @@ class _DuenoScreenState extends State<DuenoScreen> {
     try {
       final file = await _exportService.exportarProductos();
       if (mounted) {
-        if (file != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Productos exportados: ${file.path}')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay productos para exportar'), backgroundColor: Colors.orange),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Productos exportados correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -179,15 +175,12 @@ class _DuenoScreenState extends State<DuenoScreen> {
         hasta: DateTime.now(),
       );
       if (mounted) {
-        if (file != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Informe completo exportado: ${file.path}')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No hay datos para exportar'), backgroundColor: Colors.orange),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Informe completo exportado correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -212,55 +205,13 @@ class _DuenoScreenState extends State<DuenoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Sección de Exportación
-                  const Text(
-                    'Exportar Datos',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.5,
-                    children: [
-                      _buildExportCard(
-                        'Ventas',
-                        Icons.point_of_sale,
-                        Colors.green,
-                        _exportarVentas,
-                      ),
-                      _buildExportCard(
-                        'Gastos',
-                        Icons.money_off,
-                        Colors.red,
-                        _exportarGastos,
-                      ),
-                      _buildExportCard(
-                        'Productos',
-                        Icons.inventory,
-                        Colors.blue,
-                        _exportarProductos,
-                      ),
-                      _buildExportCard(
-                        'Informe Completo',
-                        Icons.description,
-                        Colors.purple,
-                        _exportarInformeCompleto,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  // Sección de Empleados
+                  // Sección de Empleados (PRIMERO)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'Gestión de Empleados',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: const Icon(Icons.refresh),
@@ -268,15 +219,26 @@ class _DuenoScreenState extends State<DuenoScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Administra a tus empleados: activa, desactiva o elimina usuarios',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
                   const SizedBox(height: 16),
                   
                   if (_empleados.isEmpty)
-                    const Center(
+                    Center(
                       child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: Text(
-                          'No hay empleados registrados',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          children: [
+                            Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hay empleados registrados',
+                              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                            ),
+                          ],
                         ),
                       ),
                     )
@@ -343,19 +305,18 @@ class _DuenoScreenState extends State<DuenoScreen> {
                                           Icon(
                                             empleado.activo ? Icons.block : Icons.check_circle,
                                             size: 20,
-                                            color: empleado.activo ? Colors.red : Colors.green,
+                                            color: empleado.activo ? Colors.orange : Colors.green,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(empleado.activo ? 'Desactivar' : 'Activar'),
                                         ],
                                       ),
                                     ),
-                                    const PopupMenuDivider(),
                                     const PopupMenuItem(
                                       value: 'eliminar',
                                       child: Row(
                                         children: [
-                                          Icon(Icons.delete_forever, size: 20, color: Colors.red),
+                                          Icon(Icons.delete, size: 20, color: Colors.red),
                                           SizedBox(width: 8),
                                           Text('Eliminar', style: TextStyle(color: Colors.red)),
                                         ],
@@ -369,6 +330,55 @@ class _DuenoScreenState extends State<DuenoScreen> {
                         );
                       },
                     ),
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 32),
+
+                  // Sección de Exportación (SEGUNDO)
+                  const Text(
+                    'Exportar Datos',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Exporta ventas, gastos, productos e informes completos a Excel',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.5,
+                    children: [
+                      _buildExportCard(
+                        'Ventas',
+                        Icons.point_of_sale,
+                        Colors.green,
+                        _exportarVentas,
+                      ),
+                      _buildExportCard(
+                        'Gastos',
+                        Icons.money_off,
+                        Colors.red,
+                        _exportarGastos,
+                      ),
+                      _buildExportCard(
+                        'Productos',
+                        Icons.inventory,
+                        Colors.blue,
+                        _exportarProductos,
+                      ),
+                      _buildExportCard(
+                        'Informe Completo',
+                        Icons.description,
+                        Colors.purple,
+                        _exportarInformeCompleto,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

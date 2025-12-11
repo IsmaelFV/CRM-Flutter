@@ -2,6 +2,10 @@ import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:convert';
+// Conditional import for web
+import 'dart:html' as html show AnchorElement, Url, Blob;
 import '../shared/models/venta_model.dart';
 import '../shared/models/gasto_model.dart';
 import '../shared/models/producto_model.dart';
@@ -238,19 +242,34 @@ class ExportService {
   }
 
   // Guardar archivo Excel
-  Future<File> _guardarExcel(Excel excel, String nombre) async {
-    final directory = await getApplicationDocumentsDirectory();
+  Future<File?> _guardarExcel(Excel excel, String nombre) async {
     final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     final fileName = '${nombre}_$timestamp.xlsx';
-    final filePath = '${directory.path}/$fileName';
-
-    final file = File(filePath);
-    final bytes = excel.encode();
     
-    if (bytes != null) {
+    final bytes = excel.encode();
+    if (bytes == null) throw Exception('Error al generar el archivo Excel');
+    
+    if (kIsWeb) {
+      // Para web: descargar directamente al navegador
+      _descargarArchivoWeb(bytes, fileName);
+      return null; // En web no devolvemos File
+    } else {
+      // Para móvil/desktop: guardar en sistema de archivos
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$fileName';
+      final file = File(filePath);
       await file.writeAsBytes(bytes);
+      return file;
     }
-
-    return file;
+  }
+  
+  // Descargar archivo en web
+  void _descargarArchivoWeb(List<int> bytes, String fileName) {
+    final blob = html.Blob([bytes]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute('download', fileName)
+      ..click();
+    html.Url.revokeObjectUrl(url);
   }
 }
