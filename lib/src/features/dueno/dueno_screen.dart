@@ -358,31 +358,31 @@ class _DuenoScreenState extends State<DuenoScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.5,
+                    mainAxisSpacing: 10,
+                    crossAxisSpacing: 10,
+                    childAspectRatio: 2.2,
                     children: [
                       _buildExportCard(
                         'Ventas',
-                        Icons.point_of_sale,
+                        Icons.trending_up,
                         Colors.green,
                         _exportarVentas,
                       ),
                       _buildExportCard(
                         'Gastos',
-                        Icons.money_off,
+                        Icons.trending_down,
                         Colors.red,
                         _exportarGastos,
                       ),
                       _buildExportCard(
                         'Productos',
-                        Icons.inventory,
+                        Icons.inventory_2_outlined,
                         Colors.blue,
                         _exportarProductos,
                       ),
                       _buildExportCard(
-                        'Informe Completo',
-                        Icons.description,
+                        'Informe',
+                        Icons.assessment_outlined,
                         Colors.purple,
                         _exportarInformeCompleto,
                       ),
@@ -396,25 +396,49 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Widget _buildExportCard(String title, IconData icon, Color color, VoidCallback onTap) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.05),
+                color.withOpacity(0.02),
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
             children: [
-              Icon(icon, size: 40, color: color),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                  ),
                 ),
               ),
+              Icon(Icons.download_outlined, size: 18, color: Colors.grey[400]),
             ],
           ),
         ),

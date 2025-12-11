@@ -132,82 +132,59 @@ class _AdminScreenState extends State<AdminScreen> {
           const SizedBox(height: 16),
           
           if (_isExporting)
-            const Card(
-              child: Padding(
+            Card(
+              elevation: 0,
+              color: Colors.blue[50],
+              child: const Padding(
                 padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    CircularProgressIndicator(),
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
                     SizedBox(width: 16),
-                    Text('Exportando...'),
+                    Text('Exportando...', style: TextStyle(fontWeight: FontWeight.w500)),
                   ],
                 ),
               ),
             )
-          else ...[
-            // Exportar ventas
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.shopping_cart, color: Colors.white),
+          else
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 2.2,
+              children: [
+                _buildExportCard(
+                  'Ventas',
+                  Icons.trending_up,
+                  Colors.green,
+                  _exportarVentas,
                 ),
-                title: const Text('Exportar Ventas'),
-                subtitle: const Text('Exportar todas las ventas a Excel'),
-                trailing: const Icon(Icons.download),
-                onTap: _exportarVentas,
-              ),
+                _buildExportCard(
+                  'Gastos',
+                  Icons.trending_down,
+                  Colors.red,
+                  _exportarGastos,
+                ),
+                _buildExportCard(
+                  'Productos',
+                  Icons.inventory_2_outlined,
+                  Colors.blue,
+                  _exportarProductos,
+                ),
+                _buildExportCard(
+                  'Informe',
+                  Icons.assessment_outlined,
+                  Colors.purple,
+                  _exportarInformeCompleto,
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            
-            // Exportar gastos
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.receipt_long, color: Colors.white),
-                ),
-                title: const Text('Exportar Gastos'),
-                subtitle: const Text('Exportar todos los gastos a Excel'),
-                trailing: const Icon(Icons.download),
-                onTap: _exportarGastos,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Exportar productos
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Icon(Icons.inventory, color: Colors.white),
-                ),
-                title: const Text('Exportar Productos'),
-                subtitle: const Text('Exportar catálogo de productos a Excel'),
-                trailing: const Icon(Icons.download),
-                onTap: _exportarProductos,
-              ),
-            ),
-            const SizedBox(height: 12),
-            
-            // Exportar informe completo
-            Card(
-              color: Colors.purple[50],
-              child: ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Colors.purple,
-                  child: Icon(Icons.analytics, color: Colors.white),
-                ),
-                title: const Text(
-                  'Exportar Informe Completo',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text('Informe completo con ventas, gastos y productos'),
-                trailing: const Icon(Icons.download),
-                onTap: _exportarInformeCompleto,
-              ),
-            ),
-          ],
           
           const SizedBox(height: 32),
           
@@ -221,14 +198,12 @@ class _AdminScreenState extends State<AdminScreen> {
           const SizedBox(height: 16),
           
           Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: Icon(Icons.people, color: Colors.white),
-              ),
-              title: const Text('Gestionar Usuarios'),
-              subtitle: const Text('Crear, editar y eliminar usuarios'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Colors.orange.withOpacity(0.2), width: 1),
+            ),
+            child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
@@ -237,9 +212,113 @@ class _AdminScreenState extends State<AdminScreen> {
                   ),
                 );
               },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.orange.withOpacity(0.05),
+                      Colors.orange.withOpacity(0.02),
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.people_outline, size: 24, color: Colors.orange),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Gestionar Usuarios',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Crear, editar y eliminar usuarios',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildExportCard(String title, IconData icon, Color color, VoidCallback onTap) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.05),
+                color.withOpacity(0.02),
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ),
+              Icon(Icons.download_outlined, size: 18, color: Colors.grey[400]),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -307,20 +307,46 @@ class DashboardHomeScreen extends StatelessWidget {
               // Alertas de stock bajo
               if (dashboardProvider.alertasStockBajo > 0) ...[
                 Card(
-                  color: Colors.orange[50],
-                  child: ListTile(
-                    leading: const Icon(Icons.warning, color: Colors.orange),
-                    title: Text(
-                      'Productos con stock bajo',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.orange.withOpacity(0.3), width: 1),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Colors.orange.withOpacity(0.1),
+                          Colors.orange.withOpacity(0.05),
+                        ],
+                      ),
                     ),
-                    subtitle: Text(
-                      '${dashboardProvider.alertasStockBajo} producto(s) necesitan reposición',
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 24),
+                      ),
+                      title: const Text(
+                        'Productos con stock bajo',
+                        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      ),
+                      subtitle: Text(
+                        '${dashboardProvider.alertasStockBajo} producto(s) necesitan reposición',
+                        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+                      onTap: () {
+                        // Navegar a productos con filtro de stock bajo
+                      },
                     ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () {
-                      // Navegar a productos con filtro de stock bajo
-                    },
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -336,29 +362,64 @@ class DashboardHomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 ...dashboardProvider.productosStockBajo.take(5).map((producto) {
+                  final color = producto.sinStock ? Colors.red : Colors.orange;
                   return Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: producto.sinStock 
-                            ? Colors.red 
-                            : Colors.orange,
-                        child: Text(
-                          producto.stock.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    elevation: 0,
+                    margin: const EdgeInsets.only(bottom: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: color.withOpacity(0.2), width: 1),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            color.withOpacity(0.05),
+                            color.withOpacity(0.02),
+                          ],
                         ),
                       ),
-                      title: Text(producto.nombre),
-                      subtitle: Text(
-                        producto.sinStock 
-                            ? 'SIN STOCK' 
-                            : 'Stock bajo (mín: ${producto.stockMinimo})',
-                      ),
-                      trailing: Text(
-                        currencyFormat.format(producto.precio),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        leading: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              producto.stock.toString(),
+                              style: TextStyle(
+                                color: color,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          producto.nombre,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                        ),
+                        subtitle: Text(
+                          producto.sinStock 
+                              ? 'SIN STOCK' 
+                              : 'Stock bajo (mín: ${producto.stockMinimo})',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                        trailing: Text(
+                          currencyFormat.format(producto.precio),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.grey[800],
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -390,34 +451,58 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      child: Padding(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color.withOpacity(0.08),
+              color.withOpacity(0.03),
+            ],
+          ),
+        ),
         padding: EdgeInsets.all(isLarge ? 20 : 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: isLarge ? 28 : 24),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(icon, color: color, size: isLarge ? 24 : 20),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
-                      fontSize: isLarge ? 16 : 14,
-                      color: Colors.grey[600],
+                      fontSize: isLarge ? 15 : 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: isLarge ? 12 : 8),
+            SizedBox(height: isLarge ? 16 : 12),
             Text(
               value,
               style: TextStyle(
-                fontSize: isLarge ? 28 : 20,
+                fontSize: isLarge ? 28 : 22,
                 fontWeight: FontWeight.bold,
                 color: color,
+                letterSpacing: -0.5,
               ),
             ),
           ],
