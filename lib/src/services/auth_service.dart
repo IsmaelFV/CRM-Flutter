@@ -1,9 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../shared/models/usuario_model.dart';
 import 'supabase_service.dart';
+import 'tienda_service.dart';
 
 class AuthService {
   final _client = SupabaseService.client;
+  final _tiendaService = TiendaService();
 
   // Registro con email y contraseña
   Future<AuthResponse> signUpWithEmail({
@@ -25,6 +27,15 @@ class AuthService {
     );
 
     if (response.user != null) {
+      // Obtener duenoId si es empleado
+      String? duenoId;
+      if (rol == RolUsuario.empleado) {
+        final currentUserId = _client.auth.currentUser?.id;
+        if (currentUserId != null) {
+          duenoId = await _tiendaService.getDuenoIdActual(currentUserId);
+        }
+      }
+      
       // Crear registro en tabla usuarios
       await SupabaseService.usuarios.insert({
         'id': response.user!.id,
@@ -33,8 +44,17 @@ class AuthService {
         'apellido': apellido,
         'telefono': telefono,
         'rol': rol.toString().split('.').last,
+        'dueno_id': duenoId,
         'activo': true,
       });
+      
+      // Si es dueño, crear su tienda
+      if (rol == RolUsuario.dueno) {
+        await _tiendaService.crearTienda(
+          nombre: '$nombre $apellido - Tienda',
+          duenoId: response.user!.id,
+        );
+      }
     }
 
     return response;

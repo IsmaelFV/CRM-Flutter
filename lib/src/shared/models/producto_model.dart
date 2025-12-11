@@ -12,6 +12,7 @@ class Producto {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String creadoPorId;
+  final String duenoId; // ID del dueño/tienda a la que pertenece
   final bool activo;
 
   Producto({
@@ -28,6 +29,7 @@ class Producto {
     required this.createdAt,
     this.updatedAt,
     required this.creadoPorId,
+    required this.duenoId,
     this.activo = true,
   });
 
@@ -48,6 +50,7 @@ class Producto {
           ? DateTime.parse(json['updated_at'] as String) 
           : null,
       creadoPorId: json['creado_por_id'] as String,
+      duenoId: json['dueno_id'] as String,
       activo: json['activo'] as bool? ?? true,
     );
   }
@@ -64,9 +67,10 @@ class Producto {
       'descripcion': descripcion,
       'imagen_url': imagenUrl,
       'stock_minimo': stockMinimo,
+      'creado_por_id': creadoPorId,
+      'dueno_id': duenoId,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
-      'creado_por_id': creadoPorId,
       'activo': activo,
     };
   }
@@ -88,6 +92,7 @@ class Producto {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? creadoPorId,
+    String? duenoId,
     bool? activo,
   }) {
     return Producto(
@@ -104,6 +109,7 @@ class Producto {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       creadoPorId: creadoPorId ?? this.creadoPorId,
+      duenoId: duenoId ?? this.duenoId,
       activo: activo ?? this.activo,
     );
   }

@@ -5,6 +5,7 @@ class Usuario {
   final String nombre;
   final String apellido;
   final RolUsuario rol;
+  final String? duenoId; // ID del dueño al que pertenece (solo para empleados)
   final DateTime createdAt;
   final DateTime? updatedAt;
   final bool activo;
@@ -16,6 +17,7 @@ class Usuario {
     required this.nombre,
     required this.apellido,
     required this.rol,
+    this.duenoId,
     required this.createdAt,
     this.updatedAt,
     this.activo = true,
@@ -29,6 +31,7 @@ class Usuario {
       nombre: json['nombre'] as String,
       apellido: json['apellido'] as String,
       rol: RolUsuario.fromString(json['rol'] as String),
+      duenoId: json['dueno_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at'] as String) 
@@ -45,6 +48,7 @@ class Usuario {
       'nombre': nombre,
       'apellido': apellido,
       'rol': rol.toString().split('.').last,
+      'dueno_id': duenoId,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
       'activo': activo,
@@ -64,6 +68,7 @@ class Usuario {
     String? nombre,
     String? apellido,
     RolUsuario? rol,
+    String? duenoId,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? activo,
@@ -75,6 +80,7 @@ class Usuario {
       nombre: nombre ?? this.nombre,
       apellido: apellido ?? this.apellido,
       rol: rol ?? this.rol,
+      duenoId: duenoId ?? this.duenoId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       activo: activo ?? this.activo,

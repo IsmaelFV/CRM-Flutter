@@ -2,10 +2,12 @@ import 'package:uuid/uuid.dart';
 import '../shared/models/venta_model.dart';
 import 'supabase_service.dart';
 import 'producto_service.dart';
+import 'tienda_service.dart';
 
 class VentaService {
   final _uuid = const Uuid();
   final _productoService = ProductoService();
+  final _tiendaService = TiendaService();
 
   // Obtener todas las ventas
   Future<List<Venta>> getVentas({DateTime? desde, DateTime? hasta}) async {
@@ -70,6 +72,10 @@ class VentaService {
       final userId = SupabaseService.currentUserId;
       if (userId == null) throw Exception('Usuario no autenticado');
 
+      // Obtener duenoId del usuario actual
+      final duenoId = await _tiendaService.getDuenoIdActual(userId);
+      if (duenoId == null) throw Exception('No se pudo determinar la tienda');
+
       // Reducir stock del producto
       final stockActualizado = await _productoService.reducirStock(
         productoId,
@@ -92,6 +98,7 @@ class VentaService {
         'metodo_pago': metodoPago.toString().split('.').last,
         'comentarios': comentarios,
         'creado_por_id': userId,
+        'dueno_id': duenoId,
         'created_at': now.toIso8601String(),
       };
 

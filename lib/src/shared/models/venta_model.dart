@@ -9,6 +9,7 @@ class Venta {
   final String? comentarios;
   final String creadoPorId;
   final String? creadoPorNombre;
+  final String duenoId; // ID del dueño/tienda
   final DateTime createdAt;
 
   Venta({
@@ -22,6 +23,7 @@ class Venta {
     this.comentarios,
     required this.creadoPorId,
     this.creadoPorNombre,
+    required this.duenoId,
     required this.createdAt,
   });
 
@@ -37,6 +39,7 @@ class Venta {
       comentarios: json['comentarios'] as String?,
       creadoPorId: json['creado_por_id'] as String,
       creadoPorNombre: json['creado_por_nombre'] as String?,
+      duenoId: json['dueno_id'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -53,6 +56,7 @@ class Venta {
       'comentarios': comentarios,
       'creado_por_id': creadoPorId,
       'creado_por_nombre': creadoPorNombre,
+      'dueno_id': duenoId,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -70,6 +74,7 @@ class Venta {
     String? comentarios,
     String? creadoPorId,
     String? creadoPorNombre,
+    String? duenoId,
     DateTime? createdAt,
   }) {
     return Venta(
@@ -83,6 +88,7 @@ class Venta {
       comentarios: comentarios ?? this.comentarios,
       creadoPorId: creadoPorId ?? this.creadoPorId,
       creadoPorNombre: creadoPorNombre ?? this.creadoPorNombre,
+      duenoId: duenoId ?? this.duenoId,
       createdAt: createdAt ?? this.createdAt,
     );
   }

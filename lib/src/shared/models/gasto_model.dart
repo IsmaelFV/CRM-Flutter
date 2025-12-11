@@ -10,6 +10,7 @@ class Gasto {
   final String? categoriaGasto;
   final String creadoPorId;
   final String? creadoPorNombre;
+  final String duenoId; // ID del dueño/tienda
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -25,6 +26,7 @@ class Gasto {
     this.categoriaGasto,
     required this.creadoPorId,
     this.creadoPorNombre,
+    required this.duenoId,
     required this.createdAt,
     this.updatedAt,
   });
@@ -42,6 +44,7 @@ class Gasto {
       categoriaGasto: json['categoria_gasto'] as String?,
       creadoPorId: json['creado_por_id'] as String,
       creadoPorNombre: json['creado_por_nombre'] as String?,
+      duenoId: json['dueno_id'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at'] as String) 
@@ -62,6 +65,7 @@ class Gasto {
       'categoria_gasto': categoriaGasto,
       'creado_por_id': creadoPorId,
       'creado_por_nombre': creadoPorNombre,
+      'dueno_id': duenoId,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
@@ -81,6 +85,7 @@ class Gasto {
     String? categoriaGasto,
     String? creadoPorId,
     String? creadoPorNombre,
+    String? duenoId,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -96,6 +101,7 @@ class Gasto {
       categoriaGasto: categoriaGasto ?? this.categoriaGasto,
       creadoPorId: creadoPorId ?? this.creadoPorId,
       creadoPorNombre: creadoPorNombre ?? this.creadoPorNombre,
+      duenoId: duenoId ?? this.duenoId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

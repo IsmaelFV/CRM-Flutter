@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:uuid/uuid.dart';
 import '../shared/models/gasto_model.dart';
 import 'supabase_service.dart';
+import 'tienda_service.dart';
 
 class GastoService {
   final _uuid = const Uuid();
+  final _tiendaService = TiendaService();
 
   // Obtener todos los gastos
   Future<List<Gasto>> getGastos({DateTime? desde, DateTime? hasta}) async {
@@ -63,6 +65,10 @@ class GastoService {
       final userId = SupabaseService.currentUserId;
       if (userId == null) throw Exception('Usuario no autenticado');
 
+      // Obtener duenoId del usuario actual
+      final duenoId = await _tiendaService.getDuenoIdActual(userId);
+      if (duenoId == null) throw Exception('No se pudo determinar la tienda');
+
       String? fotoUrl;
       
       // Subir foto si existe
@@ -84,6 +90,7 @@ class GastoService {
         'foto_url': fotoUrl,
         'categoria_gasto': categoriaGasto,
         'creado_por_id': userId,
+        'dueno_id': duenoId,
         'created_at': now.toIso8601String(),
       };
 

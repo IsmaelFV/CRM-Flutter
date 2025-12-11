@@ -1,9 +1,11 @@
 import 'package:uuid/uuid.dart';
 import '../shared/models/producto_model.dart';
 import 'supabase_service.dart';
+import 'tienda_service.dart';
 
 class ProductoService {
   final _uuid = const Uuid();
+  final _tiendaService = TiendaService();
 
   // Obtener todos los productos activos
   Future<List<Producto>> getProductos() async {
@@ -88,6 +90,10 @@ class ProductoService {
       final userId = SupabaseService.currentUserId;
       if (userId == null) throw Exception('Usuario no autenticado');
 
+      // Obtener duenoId del usuario actual
+      final duenoId = await _tiendaService.getDuenoIdActual(userId);
+      if (duenoId == null) throw Exception('No se pudo determinar la tienda');
+
       final id = _uuid.v4();
       final now = DateTime.now().toIso8601String();
 
@@ -101,6 +107,7 @@ class ProductoService {
         'descripcion': descripcion,
         'stock_minimo': stockMinimo,
         'creado_por_id': userId,
+        'dueno_id': duenoId,
         'created_at': now,
         'activo': true,
       };
