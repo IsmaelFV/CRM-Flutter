@@ -145,14 +145,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 
-                // Rol
+                // Rol (sin superadmin - solo se asigna desde gestión de usuarios)
                 DropdownButtonFormField<RolUsuario>(
                   value: _selectedRol,
                   decoration: const InputDecoration(
                     labelText: 'Rol',
                     prefixIcon: Icon(Icons.badge),
                   ),
-                  items: RolUsuario.values.map((rol) {
+                  items: RolUsuario.values
+                      .where((rol) => rol != RolUsuario.superadmin) // Excluir superadmin
+                      .map((rol) {
                     return DropdownMenuItem(
                       value: rol,
                       child: Text(rol.displayName),
