@@ -63,22 +63,45 @@ class _CrearProductoScreenState extends State<CrearProductoScreen> {
 
     if (esEdicion) {
       // Actualizar producto existente
-      producto = await _productoService.actualizarProducto(
-        id: widget.producto!.id,
-        nombre: _nombreController.text,
-        precio: double.parse(_precioController.text),
-        stock: int.parse(_stockController.text),
-        codigoBarras: _codigoBarrasController.text.isEmpty 
+      final updates = {
+        'nombre': _nombreController.text,
+        'precio': double.parse(_precioController.text),
+        'stock': int.parse(_stockController.text),
+        'codigo_barras': _codigoBarrasController.text.isEmpty 
             ? null 
             : _codigoBarrasController.text,
-        categoria: _categoriaController.text.isEmpty 
+        'categoria': _categoriaController.text.isEmpty 
             ? null 
             : _categoriaController.text,
-        descripcion: _descripcionController.text.isEmpty 
+        'descripcion': _descripcionController.text.isEmpty 
             ? null 
             : _descripcionController.text,
-        stockMinimo: int.parse(_stockMinimoController.text),
+        'stock_minimo': int.parse(_stockMinimoController.text),
+      };
+      
+      final success = await _productoService.actualizarProducto(
+        widget.producto!.id,
+        updates,
       );
+      
+      // Si la actualización fue exitosa, devolvemos el producto actualizado
+      if (success) {
+        producto = widget.producto!.copyWith(
+          nombre: _nombreController.text,
+          precio: double.parse(_precioController.text),
+          stock: int.parse(_stockController.text),
+          codigoBarras: _codigoBarrasController.text.isEmpty 
+              ? null 
+              : _codigoBarrasController.text,
+          categoria: _categoriaController.text.isEmpty 
+              ? null 
+              : _categoriaController.text,
+          descripcion: _descripcionController.text.isEmpty 
+              ? null 
+              : _descripcionController.text,
+          stockMinimo: int.parse(_stockMinimoController.text),
+        );
+      }
     } else {
       // Crear nuevo producto
       producto = await _productoService.crearProducto(
