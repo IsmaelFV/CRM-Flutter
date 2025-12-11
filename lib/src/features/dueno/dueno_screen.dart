@@ -67,16 +67,27 @@ class _DuenoScreenState extends State<DuenoScreen> {
       final authProvider = context.read<AuthProvider>();
       final duenoId = authProvider.currentUser?.id;
       
-      if (duenoId == null) return;
+      print('DEBUG ASIGNAR: Intentando asignar empleado ${empleado.nombreCompleto}');
+      print('DEBUG ASIGNAR: Empleado ID: ${empleado.id}');
+      print('DEBUG ASIGNAR: Dueño ID: $duenoId');
+      print('DEBUG ASIGNAR: Empleado duenoId actual: ${empleado.duenoId}');
+      
+      if (duenoId == null) {
+        print('DEBUG ASIGNAR: ERROR - duenoId es null');
+        return;
+      }
       
       // Actualizar directamente en Supabase
-      await Supabase.instance.client
+      final response = await Supabase.instance.client
           .from('usuarios')
           .update({
             'dueno_id': duenoId,
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('id', empleado.id);
+          .eq('id', empleado.id)
+          .select();
+      
+      print('DEBUG ASIGNAR: Respuesta de Supabase: $response');
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +96,7 @@ class _DuenoScreenState extends State<DuenoScreen> {
         _cargarEmpleados();
       }
     } catch (e) {
+      print('DEBUG ASIGNAR: ERROR - $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al asignar empleado: $e'), backgroundColor: Colors.red),
