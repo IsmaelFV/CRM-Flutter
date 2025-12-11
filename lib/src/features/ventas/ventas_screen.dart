@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../services/venta_service.dart';
 import '../../shared/models/venta_model.dart';
+import '../../shared/providers/auth_provider.dart';
 import 'crear_venta_screen.dart';
 
 class VentasScreen extends StatefulWidget {
@@ -26,7 +28,14 @@ class _VentasScreenState extends State<VentasScreen> {
 
   Future<void> _cargarVentas() async {
     setState(() => _isLoading = true);
-    _ventas = await _ventaService.getVentas();
+    final authProvider = context.read<AuthProvider>();
+    
+    // Determinar el filtro de duenoId
+    final filtroDuenoId = authProvider.isSuperadmin
+        ? authProvider.tiendaActual?.duenoId  // Tienda seleccionada o null (todas)
+        : authProvider.duenoId;                // Dueño/empleado actual
+    
+    _ventas = await _ventaService.getVentas(duenoId: filtroDuenoId);
     setState(() => _isLoading = false);
   }
 

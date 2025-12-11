@@ -7,13 +7,19 @@ class ProductoService {
   final _uuid = const Uuid();
   final _tiendaService = TiendaService();
 
-  // Obtener todos los productos activos
-  Future<List<Producto>> getProductos() async {
+  // Obtener todos los productos activos (opcionalmente filtrados por dueño)
+  Future<List<Producto>> getProductos({String? duenoId}) async {
     try {
-      final response = await SupabaseService.productos
+      dynamic query = SupabaseService.productos
           .select()
-          .eq('activo', true)
-          .order('nombre');
+          .eq('activo', true);
+
+      // Filtro adicional por dueño (para superadmin con tienda seleccionada)
+      if (duenoId != null) {
+        query = query.eq('dueno_id', duenoId);
+      }
+
+      final response = await query.order('nombre');
       
       return (response as List)
           .map((json) => Producto.fromJson(json))
@@ -24,13 +30,19 @@ class ProductoService {
     }
   }
 
-  // Obtener productos con stock bajo
-  Future<List<Producto>> getProductosStockBajo() async {
+  // Obtener productos con stock bajo (opcionalmente filtrados por dueño)
+  Future<List<Producto>> getProductosStockBajo({String? duenoId}) async {
     try {
-      final response = await SupabaseService.productos
+      dynamic query = SupabaseService.productos
           .select()
-          .eq('activo', true)
-          .order('stock');
+          .eq('activo', true);
+
+      // Filtro adicional por dueño (para superadmin con tienda seleccionada)
+      if (duenoId != null) {
+        query = query.eq('dueno_id', duenoId);
+      }
+
+      final response = await query.order('stock');
       
       final productos = (response as List)
           .map((json) => Producto.fromJson(json))
@@ -58,14 +70,19 @@ class ProductoService {
     }
   }
 
-  // Buscar productos por nombre o código de barras
-  Future<List<Producto>> buscarProductos(String query) async {
+  // Buscar productos por nombre o código de barras (opcionalmente filtrados por dueño)
+  Future<List<Producto>> buscarProductos(String query, {String? duenoId}) async {
     try {
-      final response = await SupabaseService.productos
+      dynamic q = SupabaseService.productos
           .select()
           .eq('activo', true)
-          .or('nombre.ilike.%$query%,codigo_barras.ilike.%$query%')
-          .order('nombre');
+          .or('nombre.ilike.%$query%,codigo_barras.ilike.%$query%');
+
+      if (duenoId != null) {
+        q = q.eq('dueno_id', duenoId);
+      }
+
+      final response = await q.order('nombre');
       
       return (response as List)
           .map((json) => Producto.fromJson(json))

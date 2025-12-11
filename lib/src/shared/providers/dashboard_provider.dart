@@ -40,7 +40,7 @@ class DashboardProvider with ChangeNotifier {
   List<Producto> get productosStockBajo => _productosStockBajo;
   int get alertasStockBajo => _productosStockBajo.length;
 
-  Future<void> cargarDatos() async {
+  Future<void> cargarDatos({String? duenoId}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -48,9 +48,9 @@ class DashboardProvider with ChangeNotifier {
     try {
       // Cargar datos en paralelo
       await Future.wait([
-        _cargarDatosHoy(),
-        _cargarDatosMes(),
-        _cargarProductosStockBajo(),
+        _cargarDatosHoy(duenoId: duenoId),
+        _cargarDatosMes(duenoId: duenoId),
+        _cargarProductosStockBajo(duenoId: duenoId),
       ]);
     } catch (e) {
       _errorMessage = 'Error cargando datos: $e';
@@ -61,20 +61,20 @@ class DashboardProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _cargarDatosHoy() async {
-    _ventasHoy = await _ventaService.getTotalVentasHoy();
-    _gastosHoy = await _gastoService.getTotalGastosHoy();
+  Future<void> _cargarDatosHoy({String? duenoId}) async {
+    _ventasHoy = await _ventaService.getTotalVentasHoy(duenoId: duenoId);
+    _gastosHoy = await _gastoService.getTotalGastosHoy(duenoId: duenoId);
     _gananciasHoy = _ventasHoy - _gastosHoy;
   }
 
-  Future<void> _cargarDatosMes() async {
-    _ventasMes = await _ventaService.getTotalVentasMes();
-    _gastosMes = await _gastoService.getTotalGastosMes();
+  Future<void> _cargarDatosMes({String? duenoId}) async {
+    _ventasMes = await _ventaService.getTotalVentasMes(duenoId: duenoId);
+    _gastosMes = await _gastoService.getTotalGastosMes(duenoId: duenoId);
     _gananciasMes = _ventasMes - _gastosMes;
   }
 
-  Future<void> _cargarProductosStockBajo() async {
-    _productosStockBajo = await _productoService.getProductosStockBajo();
+  Future<void> _cargarProductosStockBajo({String? duenoId}) async {
+    _productosStockBajo = await _productoService.getProductosStockBajo(duenoId: duenoId);
   }
 
   // Comparativa con el mes anterior

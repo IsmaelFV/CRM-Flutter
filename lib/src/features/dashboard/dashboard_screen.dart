@@ -97,19 +97,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     tiendaActualId: authProvider.tiendaSeleccionadaId,
                   ),
                 );
-                
-                if (tiendaId != null || tiendaId == null) {
-                  await authProvider.seleccionarTienda(tiendaId);
-                  if (context.mounted) {
-                    context.read<DashboardProvider>().cargarDatos();
-                  }
-                }
+
+                // tiendaId puede ser null (todas las tiendas)
+                if (!context.mounted) return;
+                await authProvider.seleccionarTienda(tiendaId);
+
+                final filtroDuenoId = authProvider.isSuperadmin
+                    ? authProvider.tiendaActual?.duenoId
+                    : authProvider.duenoId;
+
+                context.read<DashboardProvider>().cargarDatos(duenoId: filtroDuenoId);
               },
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<DashboardProvider>().cargarDatos();
+              final filtroDuenoId = authProvider.isSuperadmin
+                  ? authProvider.tiendaActual?.duenoId
+                  : authProvider.duenoId;
+              context.read<DashboardProvider>().cargarDatos(duenoId: filtroDuenoId);
             },
           ),
           PopupMenuButton<String>(

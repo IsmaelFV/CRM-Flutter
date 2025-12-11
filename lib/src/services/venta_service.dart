@@ -9,8 +9,8 @@ class VentaService {
   final _productoService = ProductoService();
   final _tiendaService = TiendaService();
 
-  // Obtener todas las ventas
-  Future<List<Venta>> getVentas({DateTime? desde, DateTime? hasta}) async {
+  // Obtener todas las ventas (opcionalmente filtradas por dueño)
+  Future<List<Venta>> getVentas({DateTime? desde, DateTime? hasta, String? duenoId}) async {
     try {
       dynamic query = SupabaseService.ventas
           .select('''
@@ -23,6 +23,11 @@ class VentaService {
       }
       if (hasta != null) {
         query = query.lte('fecha', hasta.toIso8601String());
+      }
+
+      // Filtro adicional por dueño (para superadmin con tienda seleccionada)
+      if (duenoId != null) {
+        query = query.eq('dueno_id', duenoId);
       }
 
       query = query.order('fecha', ascending: false);
@@ -43,20 +48,20 @@ class VentaService {
   }
 
   // Obtener ventas del día
-  Future<List<Venta>> getVentasHoy() async {
+  Future<List<Venta>> getVentasHoy({String? duenoId}) async {
     final hoy = DateTime.now();
     final inicio = DateTime(hoy.year, hoy.month, hoy.day);
     final fin = inicio.add(const Duration(days: 1));
     
-    return await getVentas(desde: inicio, hasta: fin);
+    return await getVentas(desde: inicio, hasta: fin, duenoId: duenoId);
   }
 
   // Obtener ventas del mes
-  Future<List<Venta>> getVentasMes() async {
+  Future<List<Venta>> getVentasMes({String? duenoId}) async {
     final hoy = DateTime.now();
     final inicio = DateTime(hoy.year, hoy.month, 1);
     
-    return await getVentas(desde: inicio);
+    return await getVentas(desde: inicio, duenoId: duenoId);
   }
 
   // Crear venta
@@ -122,20 +127,20 @@ class VentaService {
   }
 
   // Obtener total de ventas
-  Future<double> getTotalVentas({DateTime? desde, DateTime? hasta}) async {
-    final ventas = await getVentas(desde: desde, hasta: hasta);
+  Future<double> getTotalVentas({DateTime? desde, DateTime? hasta, String? duenoId}) async {
+    final ventas = await getVentas(desde: desde, hasta: hasta, duenoId: duenoId);
     return ventas.fold<double>(0.0, (sum, venta) => sum + venta.importe);
   }
 
   // Obtener total de ventas del día
-  Future<double> getTotalVentasHoy() async {
-    final ventas = await getVentasHoy();
+  Future<double> getTotalVentasHoy({String? duenoId}) async {
+    final ventas = await getVentasHoy(duenoId: duenoId);
     return ventas.fold<double>(0.0, (sum, venta) => sum + venta.importe);
   }
 
   // Obtener total de ventas del mes
-  Future<double> getTotalVentasMes() async {
-    final ventas = await getVentasMes();
+  Future<double> getTotalVentasMes({String? duenoId}) async {
+    final ventas = await getVentasMes(duenoId: duenoId);
     return ventas.fold<double>(0.0, (sum, venta) => sum + venta.importe);
   }
 

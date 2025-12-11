@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../services/gasto_service.dart';
 import '../../shared/models/gasto_model.dart';
+import '../../shared/providers/auth_provider.dart';
 import 'crear_gasto_screen.dart';
 
 class GastosScreen extends StatefulWidget {
@@ -26,7 +28,14 @@ class _GastosScreenState extends State<GastosScreen> {
 
   Future<void> _cargarGastos() async {
     setState(() => _isLoading = true);
-    _gastos = await _gastoService.getGastos();
+    final authProvider = context.read<AuthProvider>();
+    
+    // Determinar el filtro de duenoId
+    final filtroDuenoId = authProvider.isSuperadmin
+        ? authProvider.tiendaActual?.duenoId  // Tienda seleccionada o null (todas)
+        : authProvider.duenoId;                // Dueño/empleado actual
+    
+    _gastos = await _gastoService.getGastos(duenoId: filtroDuenoId);
     setState(() => _isLoading = false);
   }
 

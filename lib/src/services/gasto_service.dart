@@ -8,8 +8,8 @@ class GastoService {
   final _uuid = const Uuid();
   final _tiendaService = TiendaService();
 
-  // Obtener todos los gastos
-  Future<List<Gasto>> getGastos({DateTime? desde, DateTime? hasta}) async {
+  // Obtener todos los gastos (opcionalmente filtrados por dueño)
+  Future<List<Gasto>> getGastos({DateTime? desde, DateTime? hasta, String? duenoId}) async {
     try {
       dynamic query = SupabaseService.gastos.select();
 
@@ -18,6 +18,11 @@ class GastoService {
       }
       if (hasta != null) {
         query = query.lte('fecha', hasta.toIso8601String());
+      }
+
+      // Filtro adicional por dueño (para superadmin con tienda seleccionada)
+      if (duenoId != null) {
+        query = query.eq('dueno_id', duenoId);
       }
 
       query = query.order('fecha', ascending: false);
@@ -34,20 +39,20 @@ class GastoService {
   }
 
   // Obtener gastos del día
-  Future<List<Gasto>> getGastosHoy() async {
+  Future<List<Gasto>> getGastosHoy({String? duenoId}) async {
     final hoy = DateTime.now();
     final inicio = DateTime(hoy.year, hoy.month, hoy.day);
     final fin = inicio.add(const Duration(days: 1));
     
-    return await getGastos(desde: inicio, hasta: fin);
+    return await getGastos(desde: inicio, hasta: fin, duenoId: duenoId);
   }
 
   // Obtener gastos del mes
-  Future<List<Gasto>> getGastosMes() async {
+  Future<List<Gasto>> getGastosMes({String? duenoId}) async {
     final hoy = DateTime.now();
     final inicio = DateTime(hoy.year, hoy.month, 1);
     
-    return await getGastos(desde: inicio);
+    return await getGastos(desde: inicio, duenoId: duenoId);
   }
 
   // Crear gasto
@@ -150,20 +155,20 @@ class GastoService {
   }
 
   // Obtener total de gastos
-  Future<double> getTotalGastos({DateTime? desde, DateTime? hasta}) async {
-    final gastos = await getGastos(desde: desde, hasta: hasta);
+  Future<double> getTotalGastos({DateTime? desde, DateTime? hasta, String? duenoId}) async {
+    final gastos = await getGastos(desde: desde, hasta: hasta, duenoId: duenoId);
     return gastos.fold<double>(0.0, (sum, gasto) => sum + gasto.importe);
   }
 
-  // Obtener total de gastos del día
-  Future<double> getTotalGastosHoy() async {
-    final gastos = await getGastosHoy();
+  // Obtener total de gastos de hoy
+  Future<double> getTotalGastosHoy({String? duenoId}) async {
+    final gastos = await getGastosHoy(duenoId: duenoId);
     return gastos.fold<double>(0.0, (sum, gasto) => sum + gasto.importe);
   }
 
   // Obtener total de gastos del mes
-  Future<double> getTotalGastosMes() async {
-    final gastos = await getGastosMes();
+  Future<double> getTotalGastosMes({String? duenoId}) async {
+    final gastos = await getGastosMes(duenoId: duenoId);
     return gastos.fold<double>(0.0, (sum, gasto) => sum + gasto.importe);
   }
 

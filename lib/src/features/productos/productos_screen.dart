@@ -27,7 +27,14 @@ class _ProductosScreenState extends State<ProductosScreen> {
 
   Future<void> _cargarProductos() async {
     setState(() => _isLoading = true);
-    _productos = await _productoService.getProductos();
+    final authProvider = context.read<AuthProvider>();
+    
+    // Determinar el filtro de duenoId
+    final filtroDuenoId = authProvider.isSuperadmin
+        ? authProvider.tiendaActual?.duenoId  // Tienda seleccionada o null (todas)
+        : authProvider.duenoId;                // Dueño/empleado actual
+    
+    _productos = await _productoService.getProductos(duenoId: filtroDuenoId);
     setState(() => _isLoading = false);
   }
 
