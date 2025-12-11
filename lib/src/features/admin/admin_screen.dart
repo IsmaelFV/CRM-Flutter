@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../services/export_service.dart';
+import '../../shared/providers/auth_provider.dart';
 import 'package:intl/intl.dart';
 import 'user_management_screen.dart';
 
@@ -17,7 +19,10 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _exportarVentas() async {
     setState(() => _isExporting = true);
     
-    final file = await _exportService.exportarVentas();
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.tiendaActual?.duenoId; // null = todas las tiendas
+    
+    final file = await _exportService.exportarVentas(duenoId: duenoId);
     
     setState(() => _isExporting = false);
 
@@ -35,7 +40,10 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _exportarGastos() async {
     setState(() => _isExporting = true);
     
-    final file = await _exportService.exportarGastos();
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.tiendaActual?.duenoId; // null = todas las tiendas
+    
+    final file = await _exportService.exportarGastos(duenoId: duenoId);
     
     setState(() => _isExporting = false);
 
@@ -53,7 +61,10 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _exportarProductos() async {
     setState(() => _isExporting = true);
     
-    final file = await _exportService.exportarProductos();
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.tiendaActual?.duenoId; // null = todas las tiendas
+    
+    final file = await _exportService.exportarProductos(duenoId: duenoId);
     
     setState(() => _isExporting = false);
 
@@ -71,7 +82,10 @@ class _AdminScreenState extends State<AdminScreen> {
   Future<void> _exportarInformeCompleto() async {
     setState(() => _isExporting = true);
     
-    final file = await _exportService.exportarInformeCompleto();
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.tiendaActual?.duenoId; // null = todas las tiendas
+    
+    final file = await _exportService.exportarInformeCompleto(duenoId: duenoId);
     
     setState(() => _isExporting = false);
 

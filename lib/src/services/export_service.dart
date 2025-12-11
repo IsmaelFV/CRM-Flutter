@@ -19,9 +19,9 @@ class ExportService {
   final ProductoService _productoService = ProductoService();
 
   // Exportar ventas a Excel
-  Future<File?> exportarVentas({DateTime? desde, DateTime? hasta}) async {
+  Future<File?> exportarVentas({DateTime? desde, DateTime? hasta, String? duenoId}) async {
     try {
-      final ventas = await _ventaService.getVentas(desde: desde, hasta: hasta);
+      final ventas = await _ventaService.getVentas(desde: desde, hasta: hasta, duenoId: duenoId);
       
       final excel = Excel.createExcel();
       final sheet = excel['Ventas'];
@@ -69,9 +69,9 @@ class ExportService {
   }
 
   // Exportar gastos a Excel
-  Future<File?> exportarGastos({DateTime? desde, DateTime? hasta}) async {
+  Future<File?> exportarGastos({DateTime? desde, DateTime? hasta, String? duenoId}) async {
     try {
-      final gastos = await _gastoService.getGastos(desde: desde, hasta: hasta);
+      final gastos = await _gastoService.getGastos(desde: desde, hasta: hasta, duenoId: duenoId);
       
       final excel = Excel.createExcel();
       final sheet = excel['Gastos'];
@@ -121,9 +121,9 @@ class ExportService {
   }
 
   // Exportar productos a Excel
-  Future<File?> exportarProductos() async {
+  Future<File?> exportarProductos({String? duenoId}) async {
     try {
-      final productos = await _productoService.getProductos();
+      final productos = await _productoService.getProductos(duenoId: duenoId);
       
       final excel = Excel.createExcel();
       final sheet = excel['Productos'];
@@ -167,11 +167,12 @@ class ExportService {
   Future<File?> exportarInformeCompleto({
     DateTime? desde,
     DateTime? hasta,
+    String? duenoId,
   }) async {
     try {
-      final ventas = await _ventaService.getVentas(desde: desde, hasta: hasta);
-      final gastos = await _gastoService.getGastos(desde: desde, hasta: hasta);
-      final productos = await _productoService.getProductos();
+      final ventas = await _ventaService.getVentas(desde: desde, hasta: hasta, duenoId: duenoId);
+      final gastos = await _gastoService.getGastos(desde: desde, hasta: hasta, duenoId: duenoId);
+      final productos = await _productoService.getProductos(duenoId: duenoId);
       
       final excel = Excel.createExcel();
 

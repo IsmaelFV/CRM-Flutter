@@ -104,9 +104,11 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Future<void> _exportarVentas() async {
     try {
+      final authProvider = context.read<AuthProvider>();
       final file = await _exportService.exportarVentas(
         desde: DateTime.now().subtract(const Duration(days: 30)),
         hasta: DateTime.now(),
+        duenoId: authProvider.duenoId,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,9 +129,11 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Future<void> _exportarGastos() async {
     try {
+      final authProvider = context.read<AuthProvider>();
       final file = await _exportService.exportarGastos(
         desde: DateTime.now().subtract(const Duration(days: 30)),
         hasta: DateTime.now(),
+        duenoId: authProvider.duenoId,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -150,7 +154,10 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Future<void> _exportarProductos() async {
     try {
-      final file = await _exportService.exportarProductos();
+      final authProvider = context.read<AuthProvider>();
+      final file = await _exportService.exportarProductos(
+        duenoId: authProvider.duenoId,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -170,9 +177,11 @@ class _DuenoScreenState extends State<DuenoScreen> {
 
   Future<void> _exportarInformeCompleto() async {
     try {
+      final authProvider = context.read<AuthProvider>();
       final file = await _exportService.exportarInformeCompleto(
         desde: DateTime.now().subtract(const Duration(days: 30)),
         hasta: DateTime.now(),
+        duenoId: authProvider.duenoId,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
