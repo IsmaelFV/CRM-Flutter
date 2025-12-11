@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import '../../services/user_service.dart';
 import '../../services/export_service.dart';
@@ -50,27 +51,31 @@ class _DuenoScreenState extends State<DuenoScreen> {
   }
 
   Future<void> _asignarEmpleado(Usuario empleado) async {
-    final authProvider = context.read<AuthProvider>();
-    final duenoId = authProvider.currentUser?.id;
-    
-    if (duenoId == null) return;
-    
-    final success = await _userService.updateUser(
-      empleado.id,
-      {'dueno_id': duenoId},
-    );
-    
-    if (success) {
+    try {
+      final authProvider = context.read<AuthProvider>();
+      final duenoId = authProvider.currentUser?.id;
+      
+      if (duenoId == null) return;
+      
+      // Actualizar directamente en Supabase
+      await Supabase.instance.client
+          .from('usuarios')
+          .update({
+            'dueno_id': duenoId,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', empleado.id);
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${empleado.nombreCompleto} añadido a tu equipo')),
         );
         _cargarEmpleados();
       }
-    } else {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al asignar empleado'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error al asignar empleado: $e'), backgroundColor: Colors.red),
         );
       }
     }
