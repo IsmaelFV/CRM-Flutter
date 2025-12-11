@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../services/producto_service.dart';
+import '../../shared/models/producto_model.dart';
 
 class CrearProductoScreen extends StatefulWidget {
-  const CrearProductoScreen({super.key});
+  final Producto? producto; // Si no es null, estamos editando
+  
+  const CrearProductoScreen({super.key, this.producto});
 
   @override
   State<CrearProductoScreen> createState() => _CrearProductoScreenState();
@@ -24,6 +27,21 @@ class _CrearProductoScreenState extends State<CrearProductoScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Si estamos editando, cargar los datos del producto
+    if (widget.producto != null) {
+      _nombreController.text = widget.producto!.nombre;
+      _precioController.text = widget.producto!.precio.toString();
+      _stockController.text = widget.producto!.stock.toString();
+      _codigoBarrasController.text = widget.producto!.codigoBarras ?? '';
+      _categoriaController.text = widget.producto!.categoria ?? '';
+      _descripcionController.text = widget.producto!.descripcion ?? '';
+      _stockMinimoController.text = widget.producto!.stockMinimo.toString();
+    }
+  }
+
+  @override
   void dispose() {
     _nombreController.dispose();
     _precioController.dispose();
@@ -40,18 +58,42 @@ class _CrearProductoScreenState extends State<CrearProductoScreen> {
 
     setState(() => _isLoading = true);
 
-    final producto = await _productoService.crearProducto(
-      nombre: _nombreController.text,
-      precio: double.parse(_precioController.text),
-      stock: int.parse(_stockController.text),
-      codigoBarras: _codigoBarrasController.text.isEmpty 
-          ? null 
-          : _codigoBarrasController.text,
-      descripcion: _descripcionController.text.isEmpty 
-          ? null 
-          : _descripcionController.text,
-      stockMinimo: int.parse(_stockMinimoController.text),
-    );
+    final bool esEdicion = widget.producto != null;
+    Producto? producto;
+
+    if (esEdicion) {
+      // Actualizar producto existente
+      producto = await _productoService.actualizarProducto(
+        id: widget.producto!.id,
+        nombre: _nombreController.text,
+        precio: double.parse(_precioController.text),
+        stock: int.parse(_stockController.text),
+        codigoBarras: _codigoBarrasController.text.isEmpty 
+            ? null 
+            : _codigoBarrasController.text,
+        categoria: _categoriaController.text.isEmpty 
+            ? null 
+            : _categoriaController.text,
+        descripcion: _descripcionController.text.isEmpty 
+            ? null 
+            : _descripcionController.text,
+        stockMinimo: int.parse(_stockMinimoController.text),
+      );
+    } else {
+      // Crear nuevo producto
+      producto = await _productoService.crearProducto(
+        nombre: _nombreController.text,
+        precio: double.parse(_precioController.text),
+        stock: int.parse(_stockController.text),
+        codigoBarras: _codigoBarrasController.text.isEmpty 
+            ? null 
+            : _codigoBarrasController.text,
+        descripcion: _descripcionController.text.isEmpty 
+            ? null 
+            : _descripcionController.text,
+        stockMinimo: int.parse(_stockMinimoController.text),
+      );
+    }
 
     setState(() => _isLoading = false);
 
@@ -60,15 +102,19 @@ class _CrearProductoScreenState extends State<CrearProductoScreen> {
     if (producto != null) {
       Navigator.pop(context, true);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Producto creado exitosamente'),
+        SnackBar(
+          content: Text(esEdicion 
+              ? 'Producto actualizado exitosamente' 
+              : 'Producto creado exitosamente'),
           backgroundColor: Colors.green,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al crear el producto'),
+        SnackBar(
+          content: Text(esEdicion 
+              ? 'Error al actualizar el producto' 
+              : 'Error al crear el producto'),
           backgroundColor: Colors.red,
         ),
       );
@@ -77,9 +123,11 @@ class _CrearProductoScreenState extends State<CrearProductoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool esEdicion = widget.producto != null;
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuevo Producto'),
+        title: Text(esEdicion ? 'Editar Producto' : 'Nuevo Producto'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

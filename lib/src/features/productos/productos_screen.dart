@@ -121,7 +121,20 @@ class _ProductosScreenState extends State<ProductosScreen> {
                                       ),
                                     ],
                                     onSelected: (value) async {
-                                      if (value == 'eliminar') {
+                                      if (value == 'editar') {
+                                        // Navegar a pantalla de edición
+                                        final result = await Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CrearProductoScreen(
+                                              producto: producto,
+                                            ),
+                                          ),
+                                        );
+                                        if (result == true) {
+                                          _cargarProductos();
+                                        }
+                                      } else if (value == 'eliminar') {
                                         final confirmar = await showDialog<bool>(
                                           context: context,
                                           builder: (context) => AlertDialog(
