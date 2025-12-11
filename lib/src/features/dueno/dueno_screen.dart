@@ -17,6 +17,7 @@ class _DuenoScreenState extends State<DuenoScreen> {
   final UserService _userService = UserService();
   final ExportService _exportService = ExportService();
   List<Usuario> _empleados = [];
+  List<Usuario> _empleadosSinAsignar = [];
   bool _isLoading = true;
 
   @override
@@ -37,8 +38,41 @@ class _DuenoScreenState extends State<DuenoScreen> {
         _empleados = todosUsuarios.where((u) => 
           u.esEmpleado && u.duenoId == duenoId
         ).toList();
+        
+        // Filtrar empleados sin dueño asignado
+        _empleadosSinAsignar = todosUsuarios.where((u) => 
+          u.esEmpleado && u.duenoId == null
+        ).toList();
+        
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _asignarEmpleado(Usuario empleado) async {
+    final authProvider = context.read<AuthProvider>();
+    final duenoId = authProvider.currentUser?.id;
+    
+    if (duenoId == null) return;
+    
+    final success = await _userService.updateUser(
+      empleado.id,
+      {'dueno_id': duenoId},
+    );
+    
+    if (success) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${empleado.nombreCompleto} añadido a tu equipo')),
+        );
+        _cargarEmpleados();
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al asignar empleado'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -343,7 +377,106 @@ class _DuenoScreenState extends State<DuenoScreen> {
                   const Divider(),
                   const SizedBox(height: 32),
 
-                  // Sección de Exportación (SEGUNDO)
+                  // Sección de Empleados Sin Asignar
+                  if (_empleadosSinAsignar.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Empleados Disponibles',
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_empleadosSinAsignar.length}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Empleados sin tienda asignada que puedes añadir a tu equipo',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _empleadosSinAsignar.length,
+                      itemBuilder: (context, index) {
+                        final empleado = _empleadosSinAsignar[index];
+                        return Card(
+                          elevation: 0,
+                          margin: const EdgeInsets.only(bottom: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(color: Colors.blue.withOpacity(0.2), width: 1),
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.blue.withOpacity(0.05),
+                                  Colors.blue.withOpacity(0.02),
+                                ],
+                              ),
+                            ),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.blue.withOpacity(0.2),
+                                child: Text(
+                                  empleado.nombre[0].toUpperCase(),
+                                  style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              title: Text(
+                                empleado.nombreCompleto,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(empleado.email, style: TextStyle(fontSize: 12)),
+                                  if (empleado.telefono != null)
+                                    Text('Tel: ${empleado.telefono}', style: TextStyle(fontSize: 12)),
+                                ],
+                              ),
+                              trailing: ElevatedButton.icon(
+                                onPressed: () => _asignarEmpleado(empleado),
+                                icon: const Icon(Icons.add, size: 18),
+                                label: const Text('Añadir'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    const Divider(),
+                    const SizedBox(height: 32),
+                  ],
+
+                  // Sección de Exportación
                   const Text(
                     'Exportar Datos',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
