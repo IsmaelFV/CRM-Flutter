@@ -41,7 +41,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
-    final puedeGestionar = authProvider.isSuperadmin || authProvider.isDueno;
+    // Solo dueños y empleados pueden crear/editar (superadmin solo ve)
+    final puedeGestionar = authProvider.isDueno || authProvider.isEmpleado;
 
     return Scaffold(
       body: _isLoading

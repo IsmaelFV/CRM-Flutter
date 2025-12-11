@@ -41,6 +41,10 @@ class _VentasScreenState extends State<VentasScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    // Solo dueños y empleados pueden crear ventas (superadmin solo ve)
+    final puedeCrear = authProvider.isDueno || authProvider.isEmpleado;
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -90,21 +94,23 @@ class _VentasScreenState extends State<VentasScreen> {
                       },
                     ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CrearVentaScreen(),
-            ),
-          );
-          if (result == true) {
-            _cargarVentas();
-          }
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nueva Venta'),
-      ),
+      floatingActionButton: puedeCrear
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CrearVentaScreen(),
+                  ),
+                );
+                if (result == true) {
+                  _cargarVentas();
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Nueva Venta'),
+            )
+          : null,
     );
   }
 }

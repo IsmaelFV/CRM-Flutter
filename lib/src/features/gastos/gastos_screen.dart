@@ -41,6 +41,10 @@ class _GastosScreenState extends State<GastosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    // Solo dueños y empleados pueden crear gastos (superadmin solo ve)
+    final puedeCrear = authProvider.isDueno || authProvider.isEmpleado;
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -92,22 +96,24 @@ class _GastosScreenState extends State<GastosScreen> {
                       },
                     ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CrearGastoScreen(),
-            ),
-          );
-          if (result == true) {
-            _cargarGastos();
-          }
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo Gasto'),
-        backgroundColor: Colors.red,
-      ),
+      floatingActionButton: puedeCrear
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CrearGastoScreen(),
+                  ),
+                );
+                if (result == true) {
+                  _cargarGastos();
+                }
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Nuevo Gasto'),
+              backgroundColor: Colors.red,
+            )
+          : null,
     );
   }
 }
