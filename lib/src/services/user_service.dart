@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../shared/models/usuario_model.dart';
 import 'supabase_service.dart';
+import 'tienda_service.dart';
 
 class UserService {
   // Obtener todos los usuarios
@@ -20,10 +21,39 @@ class UserService {
   // Actualizar rol de usuario
   Future<bool> updateUserRole(String userId, RolUsuario nuevoRol) async {
     try {
-      await SupabaseService.usuarios.update({
+      // Obtener datos del usuario antes de actualizar
+      final usuario = await SupabaseService.usuarios
+          .select()
+          .eq('id', userId)
+          .single();
+      
+      final rolAnterior = usuario['rol'] as String;
+      
+      // Actualizar rol
+      final updates = {
         'rol': nuevoRol.toString().split('.').last,
         'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', userId);
+      };
+      
+      // Si cambia a dueño, limpiar dueno_id
+      if (nuevoRol == RolUsuario.dueno) {
+        updates['dueno_id'] = null;
+      }
+      
+      await SupabaseService.usuarios.update(updates).eq('id', userId);
+      
+      // Si se convierte en dueño, crear su tienda
+      if (nuevoRol == RolUsuario.dueno && rolAnterior != 'dueno') {
+        final tiendaService = TiendaService();
+        final nombre = usuario['nombre'] as String;
+        final apellido = usuario['apellido'] as String;
+        
+        await tiendaService.crearTienda(
+          nombre: 'Tienda de $nombre $apellido',
+          duenoId: userId,
+        );
+      }
+      
       return true;
     } catch (e) {
       print('Error actualizando rol: $e');
