@@ -30,7 +30,7 @@ class UserService {
       final rolAnterior = usuario['rol'] as String;
       
       // Actualizar rol
-      final updates = {
+      final Map<String, dynamic> updates = {
         'rol': nuevoRol.toString().split('.').last,
         'updated_at': DateTime.now().toIso8601String(),
       };
