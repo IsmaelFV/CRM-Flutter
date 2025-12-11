@@ -85,7 +85,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         actions: [
-          // Selector de tienda para superadmin
+          // ==============================================================================
+  // UI SELECTOR DE TIENDA (SOLO SUPERADMIN)
+  // ==============================================================================
+  // Muestra el nombre de la tienda actual o "Todas las tiendas".
+  // Al hacer clic, abre un diálogo para cambiar el contexto global de la app.
           if (authProvider.isSuperadmin)
             IconButton(
               icon: const Icon(Icons.store),

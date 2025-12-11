@@ -27,6 +27,12 @@ class _DuenoScreenState extends State<DuenoScreen> {
     _cargarEmpleados();
   }
 
+  // ==============================================================================
+  // GESTIÓN DE EMPLEADOS (CARGA Y FILTRADO)
+  // ==============================================================================
+  // Carga todos los usuarios y los clasifica en dos listas:
+  // 1. _empleados: Usuarios que ya pertenecen a mi tienda (duenoId == mi ID).
+  // 2. _empleadosSinAsignar: Usuarios con rol 'empleado' pero sin tienda (duenoId == null).
   Future<void> _cargarEmpleados() async {
     setState(() => _isLoading = true);
     final authProvider = context.read<AuthProvider>();
@@ -41,7 +47,7 @@ class _DuenoScreenState extends State<DuenoScreen> {
           u.esEmpleado && u.duenoId == duenoId
         ).toList();
         
-        // Filtrar empleados sin dueño asignado
+        // Filtrar empleados sin dueño asignado (Huérfanos)
         _empleadosSinAsignar = todosUsuarios.where((u) => 
           u.esEmpleado && u.duenoId == null
         ).toList();
@@ -51,6 +57,11 @@ class _DuenoScreenState extends State<DuenoScreen> {
     }
   }
 
+  // ==============================================================================
+  // ASIGNAR EMPLEADO A MI TIENDA
+  // ==============================================================================
+  // Esta función toma un empleado "huérfano" y actualiza su duenoId al ID actual.
+  // Requiere que las políticas RLS permitan al dueño actualizar usuarios con dueno_id = null.
   Future<void> _asignarEmpleado(Usuario empleado) async {
     try {
       final authProvider = context.read<AuthProvider>();
@@ -58,7 +69,7 @@ class _DuenoScreenState extends State<DuenoScreen> {
       
       if (duenoId == null) return;
       
-      // Actualizar directamente en Supabase
+      // Actualizar directamente en Supabase (UPDATE usuarios SET dueno_id = MI_ID)
       await Supabase.instance.client
           .from('usuarios')
           .update({
@@ -71,7 +82,7 @@ class _DuenoScreenState extends State<DuenoScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${empleado.nombreCompleto} añadido a tu equipo')),
         );
-        _cargarEmpleados();
+        _cargarEmpleados(); // Recargar listas para reflejar cambios
       }
     } catch (e) {
       if (mounted) {

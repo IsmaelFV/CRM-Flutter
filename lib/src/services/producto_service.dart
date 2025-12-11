@@ -7,14 +7,22 @@ class ProductoService {
   final _uuid = const Uuid();
   final _tiendaService = TiendaService();
 
-  // Obtener todos los productos activos (opcionalmente filtrados por dueño)
+  // ==============================================================================
+  // OBTENER PRODUCTOS (CON FILTRO MULTI-TIENDA)
+  // ==============================================================================
+  // Obtiene la lista de productos aplicando el filtro de tienda si es necesario.
+  // Parámetro opcional [duenoId]:
+  // - Si se proporciona: Filtra los productos de esa tienda específica.
+  // - Si es null (y es Superadmin): Devuelve todos los productos de todas las tiendas.
+  // - Si es null (y es Dueño/Empleado): RLS forzará a ver solo sus propios productos.
   Future<List<Producto>> getProductos({String? duenoId}) async {
     try {
+      // Iniciamos la consulta base
       dynamic query = SupabaseService.productos
           .select()
           .eq('activo', true);
 
-      // Filtro adicional por dueño (para superadmin con tienda seleccionada)
+      // Si hay un ID específico, aplicamos el filtro WHERE dueno_id = [duenoId]
       if (duenoId != null) {
         query = query.eq('dueno_id', duenoId);
       }
@@ -30,6 +38,14 @@ class ProductoService {
     }
   }
 
+  // ==============================================================================
+  // OBTENER PRODUCTOS CON STOCK BAJO (CON FILTRO MULTI-TIENDA)
+  // ==============================================================================
+  // Obtiene la lista de productos con stock bajo aplicando el filtro de tienda si es necesario.
+  // Parámetro opcional [duenoId]:
+  // - Si se proporciona: Filtra los productos de esa tienda específica.
+  // - Si es null (y es Superadmin): Devuelve todos los productos de todas las tiendas.
+  // - Si es null (y es Dueño/Empleado): RLS forzará a ver solo sus propios productos.
   // Obtener productos con stock bajo (opcionalmente filtrados por dueño)
   Future<List<Producto>> getProductosStockBajo({String? duenoId}) async {
     try {

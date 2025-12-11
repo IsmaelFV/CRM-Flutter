@@ -20,11 +20,18 @@ class AuthProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _currentUser != null;
   
+  // LÓGICA DE ROLES
+  // ==============================================================================
+  // Propiedades que indican el rol del usuario actual
   RolUsuario? get userRole => _currentUser?.rol;
   bool get isSuperadmin => _currentUser?.esSuperadmin ?? false;
   bool get isDueno => _currentUser?.esDueno ?? false;
   bool get isEmpleado => _currentUser?.esEmpleado ?? false;
   
+  // Getter inteligente para filtrar datos:
+  // 1. Si es DUEÑO/EMPLEADO: Devuelve su propio ID (solo ven su tienda).
+  // 2. Si es SUPERADMIN: Devuelve la tienda seleccionada o null (todas).
+  // Esta propiedad se usa en todos los servicios para filtrar las consultas SQL.
   String? get duenoId {
     if (_currentUser == null) return null;
     if (_currentUser!.esDueno) return _currentUser!.id;
@@ -32,6 +39,10 @@ class AuthProvider with ChangeNotifier {
     return null; // Superadmin
   }
   
+  // LÓGICA MULTI-TIENDA PARA SUPERADMIN
+  // ==============================================================================
+  // Variable que almacena la tienda que el Superadmin está "observando".
+  // Si es null, el Superadmin ve los datos globales de todas las tiendas.
   String? get tiendaSeleccionadaId => _tiendaSeleccionadaId;
   
   // Cambiar tienda seleccionada (solo para superadmin)
