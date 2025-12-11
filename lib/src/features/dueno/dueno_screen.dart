@@ -33,6 +33,10 @@ class _DuenoScreenState extends State<DuenoScreen> {
     final duenoId = authProvider.currentUser?.id;
     
     final todosUsuarios = await _userService.getAllUsers();
+    
+    print('DEBUG: Total usuarios: ${todosUsuarios.length}');
+    print('DEBUG: Dueño ID actual: $duenoId');
+    
     if (mounted) {
       setState(() {
         // Filtrar solo empleados de este dueño
@@ -44,6 +48,14 @@ class _DuenoScreenState extends State<DuenoScreen> {
         _empleadosSinAsignar = todosUsuarios.where((u) => 
           u.esEmpleado && u.duenoId == null
         ).toList();
+        
+        print('DEBUG: Empleados de este dueño: ${_empleados.length}');
+        print('DEBUG: Empleados sin asignar: ${_empleadosSinAsignar.length}');
+        
+        // Mostrar detalles de empleados sin asignar
+        for (var emp in _empleadosSinAsignar) {
+          print('  - ${emp.nombreCompleto} (${emp.email}) - duenoId: ${emp.duenoId}');
+        }
         
         _isLoading = false;
       });
@@ -382,15 +394,15 @@ class _DuenoScreenState extends State<DuenoScreen> {
                   const Divider(),
                   const SizedBox(height: 32),
 
-                  // Sección de Empleados Sin Asignar
-                  if (_empleadosSinAsignar.isNotEmpty) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Empleados Disponibles',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        ),
+                  // Sección de Empleados Sin Asignar (SIEMPRE VISIBLE)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Empleados Disponibles',
+                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                      if (_empleadosSinAsignar.isNotEmpty)
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
@@ -405,14 +417,38 @@ class _DuenoScreenState extends State<DuenoScreen> {
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Empleados sin tienda asignada que puedes añadir a tu equipo',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 16),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Empleados sin tienda asignada que puedes añadir a tu equipo',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  if (_empleadosSinAsignar.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          children: [
+                            Icon(Icons.person_add_disabled, size: 64, color: Colors.grey[400]),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hay empleados disponibles',
+                              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Todos los empleados ya están asignados a una tienda',
+                              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -453,9 +489,9 @@ class _DuenoScreenState extends State<DuenoScreen> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(empleado.email, style: TextStyle(fontSize: 12)),
+                                  Text(empleado.email, style: const TextStyle(fontSize: 12)),
                                   if (empleado.telefono != null)
-                                    Text('Tel: ${empleado.telefono}', style: TextStyle(fontSize: 12)),
+                                    Text('Tel: ${empleado.telefono}', style: const TextStyle(fontSize: 12)),
                                 ],
                               ),
                               trailing: ElevatedButton.icon(
@@ -476,10 +512,10 @@ class _DuenoScreenState extends State<DuenoScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 32),
-                    const Divider(),
-                    const SizedBox(height: 32),
-                  ],
+                  
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 32),
 
                   // Sección de Exportación
                   const Text(
