@@ -34,9 +34,6 @@ class _DuenoScreenState extends State<DuenoScreen> {
     
     final todosUsuarios = await _userService.getAllUsers();
     
-    print('DEBUG: Total usuarios: ${todosUsuarios.length}');
-    print('DEBUG: Dueño ID actual: $duenoId');
-    
     if (mounted) {
       setState(() {
         // Filtrar solo empleados de este dueño
@@ -49,14 +46,6 @@ class _DuenoScreenState extends State<DuenoScreen> {
           u.esEmpleado && u.duenoId == null
         ).toList();
         
-        print('DEBUG: Empleados de este dueño: ${_empleados.length}');
-        print('DEBUG: Empleados sin asignar: ${_empleadosSinAsignar.length}');
-        
-        // Mostrar detalles de empleados sin asignar
-        for (var emp in _empleadosSinAsignar) {
-          print('  - ${emp.nombreCompleto} (${emp.email}) - duenoId: ${emp.duenoId}');
-        }
-        
         _isLoading = false;
       });
     }
@@ -67,27 +56,16 @@ class _DuenoScreenState extends State<DuenoScreen> {
       final authProvider = context.read<AuthProvider>();
       final duenoId = authProvider.currentUser?.id;
       
-      print('DEBUG ASIGNAR: Intentando asignar empleado ${empleado.nombreCompleto}');
-      print('DEBUG ASIGNAR: Empleado ID: ${empleado.id}');
-      print('DEBUG ASIGNAR: Dueño ID: $duenoId');
-      print('DEBUG ASIGNAR: Empleado duenoId actual: ${empleado.duenoId}');
-      
-      if (duenoId == null) {
-        print('DEBUG ASIGNAR: ERROR - duenoId es null');
-        return;
-      }
+      if (duenoId == null) return;
       
       // Actualizar directamente en Supabase
-      final response = await Supabase.instance.client
+      await Supabase.instance.client
           .from('usuarios')
           .update({
             'dueno_id': duenoId,
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('id', empleado.id)
-          .select();
-      
-      print('DEBUG ASIGNAR: Respuesta de Supabase: $response');
+          .eq('id', empleado.id);
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,7 +74,6 @@ class _DuenoScreenState extends State<DuenoScreen> {
         _cargarEmpleados();
       }
     } catch (e) {
-      print('DEBUG ASIGNAR: ERROR - $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al asignar empleado: $e'), backgroundColor: Colors.red),
