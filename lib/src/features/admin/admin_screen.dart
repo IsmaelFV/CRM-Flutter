@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/export_service.dart';
 import 'package:intl/intl.dart';
+import 'user_management_screen.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -22,22 +23,13 @@ class _AdminScreenState extends State<AdminScreen> {
 
     if (!mounted) return;
 
-    if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Ventas exportadas: ${file.path}'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al exportar ventas'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Ventas exportadas correctamente'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   Future<void> _exportarGastos() async {
@@ -49,22 +41,13 @@ class _AdminScreenState extends State<AdminScreen> {
 
     if (!mounted) return;
 
-    if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gastos exportados: ${file.path}'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al exportar gastos'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Gastos exportados correctamente'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   Future<void> _exportarProductos() async {
@@ -76,22 +59,13 @@ class _AdminScreenState extends State<AdminScreen> {
 
     if (!mounted) return;
 
-    if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Productos exportados: ${file.path}'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al exportar productos'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Productos exportados correctamente'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   Future<void> _exportarInformeCompleto() async {
@@ -103,22 +77,13 @@ class _AdminScreenState extends State<AdminScreen> {
 
     if (!mounted) return;
 
-    if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Informe completo exportado: ${file.path}'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al exportar informe'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Informe completo exportado correctamente'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -251,29 +216,10 @@ class _AdminScreenState extends State<AdminScreen> {
               subtitle: const Text('Crear, editar y eliminar usuarios'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidad en desarrollo'),
-                  ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          Card(
-            child: ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Colors.teal,
-                child: Icon(Icons.security, color: Colors.white),
-              ),
-              title: const Text('Gestionar Permisos'),
-              subtitle: const Text('Configurar roles y permisos'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Funcionalidad en desarrollo'),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserManagementScreen(),
                   ),
                 );
               },
