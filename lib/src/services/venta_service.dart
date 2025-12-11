@@ -72,9 +72,8 @@ class VentaService {
       final userId = SupabaseService.currentUserId;
       if (userId == null) throw Exception('Usuario no autenticado');
 
-      // Obtener duenoId del usuario actual
+      // Obtener duenoId del usuario actual (null para superadmin)
       final duenoId = await _tiendaService.getDuenoIdActual(userId);
-      if (duenoId == null) throw Exception('No se pudo determinar la tienda');
 
       // Reducir stock del producto
       final stockActualizado = await _productoService.reducirStock(

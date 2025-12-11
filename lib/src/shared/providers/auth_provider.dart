@@ -10,6 +10,7 @@ class AuthProvider with ChangeNotifier {
   
   Usuario? _currentUser;
   Tienda? _tiendaActual;
+  String? _tiendaSeleccionadaId; // Para superadmin: ID de tienda seleccionada para filtrar
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -29,6 +30,25 @@ class AuthProvider with ChangeNotifier {
     if (_currentUser!.esDueno) return _currentUser!.id;
     if (_currentUser!.esEmpleado) return _currentUser!.duenoId;
     return null; // Superadmin
+  }
+  
+  String? get tiendaSeleccionadaId => _tiendaSeleccionadaId;
+  
+  // Cambiar tienda seleccionada (solo para superadmin)
+  Future<void> seleccionarTienda(String? tiendaId) async {
+    if (_currentUser?.esSuperadmin != true) return;
+    
+    _tiendaSeleccionadaId = tiendaId;
+    
+    // Si se selecciona una tienda, cargar sus datos
+    if (tiendaId != null) {
+      _tiendaActual = await _tiendaService.getAllTiendas()
+          .then((tiendas) => tiendas.firstWhere((t) => t.id == tiendaId));
+    } else {
+      _tiendaActual = null;
+    }
+    
+    notifyListeners();
   }
 
   AuthProvider() {

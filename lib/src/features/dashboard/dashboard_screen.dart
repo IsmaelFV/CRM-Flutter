@@ -8,6 +8,7 @@ import '../gastos/gastos_screen.dart';
 import '../productos/productos_screen.dart';
 import '../dueno/dueno_screen.dart';
 import '../admin/admin_screen.dart';
+import '../admin/tienda_selector_dialog.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -42,19 +43,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        title: Row(
           children: [
-            const Text('MarketMove', style: TextStyle(fontSize: 18)),
-            if (authProvider.tiendaActual != null)
-              Text(
-                authProvider.tiendaActual!.nombre,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('MarketMove', style: TextStyle(fontSize: 18)),
+                if (authProvider.tiendaActual != null)
+                  Text(
+                    authProvider.tiendaActual!.nombre,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                  ),
+              ],
+            ),
+            // Indicador de tienda para superadmin
+            if (authProvider.isSuperadmin) ...[
+              const SizedBox(width: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.purple),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.admin_panel_settings, size: 16, color: Colors.purple),
+                    const SizedBox(width: 4),
+                    Text(
+                      authProvider.tiendaSeleccionadaId == null 
+                          ? 'Todas las tiendas' 
+                          : 'Tienda filtrada',
+                      style: const TextStyle(fontSize: 12, color: Colors.purple),
+                    ),
+                  ],
+                ),
               ),
+            ],
           ],
         ),
         actions: [
+          // Selector de tienda para superadmin
+          if (authProvider.isSuperadmin)
+            IconButton(
+              icon: const Icon(Icons.store),
+              tooltip: 'Cambiar tienda',
+              onPressed: () async {
+                final tiendaId = await showDialog<String?>(
+                  context: context,
+                  builder: (context) => TiendaSelectorDialog(
+                    tiendaActualId: authProvider.tiendaSeleccionadaId,
+                  ),
+                );
+                
+                if (tiendaId != null || tiendaId == null) {
+                  await authProvider.seleccionarTienda(tiendaId);
+                  if (context.mounted) {
+                    context.read<DashboardProvider>().cargarDatos();
+                  }
+                }
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

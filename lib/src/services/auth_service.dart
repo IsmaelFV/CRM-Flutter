@@ -51,7 +51,7 @@ class AuthService {
       // Si es dueño, crear su tienda
       if (rol == RolUsuario.dueno) {
         await _tiendaService.crearTienda(
-          nombre: '$nombre $apellido - Tienda',
+          nombre: 'Tienda de $nombre $apellido',
           duenoId: response.user!.id,
         );
       }
